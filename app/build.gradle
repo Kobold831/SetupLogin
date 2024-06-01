@@ -1,0 +1,33 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'jp.co.benesse.touch.setuplogin'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 22
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk 22
+        versionCode 1
+        versionName "1.0"
+        proguardFiles += 'proguard-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation files('libs/IDchaLibrary.jar')
+}
