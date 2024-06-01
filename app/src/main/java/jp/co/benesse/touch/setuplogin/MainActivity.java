@@ -3,8 +3,10 @@ package jp.co.benesse.touch.setuplogin;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
@@ -19,6 +21,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import jp.co.benesse.touch.setuplogin.data.event.DownloadEventListener;
 import jp.co.benesse.touch.setuplogin.data.handler.ProgressHandler;
@@ -39,6 +42,12 @@ public class MainActivity extends Activity implements DownloadEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        try {
+            Settings.System.putInt(getContentResolver(), "dcha_state", 3);
+        } catch (Exception ignored) {
+        }
+
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -102,9 +111,17 @@ public class MainActivity extends Activity implements DownloadEventListener {
                             .setMessage(str + "\n" + "よろしければOKを押下してください")
                             .setNegativeButton("キャンセル", (dialog1, which1) -> selectApkDialog())
                             .setPositiveButton("OK", (dialog2, which2) -> {
-                                showLoadingDialog();
-                                startDownload();
-                                dialog.dismiss();
+                                if (!Objects.equals(DOWNLOAD_FILE_URL, "SETTINGS")) {
+                                    showLoadingDialog();
+                                    startDownload();
+                                    dialog.dismiss();
+                                } else {
+                                    try {
+                                        Settings.System.putInt(getContentResolver(), "dcha_state", 3);
+                                    } catch (Exception ignored) {
+                                    }
+                                    startActivity(new Intent().setClassName("com.android.settings", "com.android.settings.Settings"));
+                                }
                             })
                             .show();
                 })
