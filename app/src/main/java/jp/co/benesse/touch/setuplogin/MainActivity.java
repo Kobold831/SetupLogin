@@ -31,6 +31,7 @@ import jp.co.benesse.touch.setuplogin.util.Constants;
 import jp.co.benesse.touch.setuplogin.util.Preferences;
 import jp.co.benesse.touch.setuplogin.views.AppListView;
 
+@SuppressWarnings("deprecation")
 public class MainActivity extends Activity implements DownloadEventListener {
 
     ProgressDialog progressDialog;
