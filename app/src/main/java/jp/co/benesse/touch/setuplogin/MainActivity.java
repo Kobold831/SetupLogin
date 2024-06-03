@@ -46,6 +46,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
         try {
             Settings.System.putInt(getContentResolver(), "dcha_state", 3);
+            Settings.System.putInt(getContentResolver(), "hide_navigation_bar", 0);
         } catch (Exception ignored) {
         }
 
