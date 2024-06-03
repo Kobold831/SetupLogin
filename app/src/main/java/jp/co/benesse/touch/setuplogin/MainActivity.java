@@ -98,7 +98,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                                 str.append("アプリ名：").append(jsonArray.getJSONObject(i).getString("name")).append("\n\n").append("説明：").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
                                 DOWNLOAD_FILE_URL = jsonArray.getJSONObject(i).getString("url");
                                 tmpIndex = i;
-                            } catch (JSONException | IOException ignored) {
+                            } catch (JSONException | IOException | NullPointerException ignored) {
                             }
                         }
                     }
