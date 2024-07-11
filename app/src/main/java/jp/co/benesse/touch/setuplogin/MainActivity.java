@@ -7,10 +7,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
-import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
-import android.widget.RadioButton;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,14 +27,12 @@ import jp.co.benesse.touch.setuplogin.data.handler.ProgressHandler;
 import jp.co.benesse.touch.setuplogin.data.task.DchaInstallTask;
 import jp.co.benesse.touch.setuplogin.data.task.FileDownloadTask;
 import jp.co.benesse.touch.setuplogin.util.Constants;
-import jp.co.benesse.touch.setuplogin.util.Preferences;
 import jp.co.benesse.touch.setuplogin.views.AppListView;
 
-@SuppressWarnings("deprecation")
 public class MainActivity extends Activity implements DownloadEventListener {
 
     ProgressDialog progressDialog;
-    public String DOWNLOAD_FILE_URL;
+    String DOWNLOAD_FILE_URL;
     int tmpIndex;
 
     @SuppressWarnings("deprecation")
@@ -43,6 +40,9 @@ public class MainActivity extends Activity implements DownloadEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        TextView textView = findViewById(R.id.main_text_v);
+        textView.setText(new StringBuilder("v").append(BuildConfig.VERSION_NAME));
 
         try {
             Settings.System.putInt(getContentResolver(), "dcha_state", 3);
@@ -56,10 +56,9 @@ public class MainActivity extends Activity implements DownloadEventListener {
         new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_CHECK_FILE);
     }
 
-    private void selectApkDialog() {
-        ArrayList<AppListView.AppData> appDataArrayList = new ArrayList<>();
-
+    private void init() {
         try {
+            ArrayList<AppListView.AppData> appDataArrayList = new ArrayList<>();
             JSONObject jsonObj1 = parseJson();
             JSONObject jsonObj2 = jsonObj1.getJSONObject("setupLogin");
             JSONArray jsonArray = jsonObj2.getJSONArray("appList");
@@ -69,65 +68,43 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 data.str = jsonArray.getJSONObject(i).getString("name");
                 appDataArrayList.add(data);
             }
-        } catch (JSONException | IOException ignored) {
-        }
 
-        View view = getLayoutInflater().inflate(R.layout.layout_app_list, null);
-        ListView listView = view.findViewById(R.id.app_list);
-        listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
-        listView.setAdapter(new AppListView.AppListAdapter(this, appDataArrayList));
-        listView.setOnItemClickListener((parent, view1, position, id) -> {
-            Preferences.save(this, Constants.KEY_RADIO_TMP, (int) id);
-            listView.invalidateViews();
-        });
-
-        new AlertDialog.Builder(this)
-                .setView(view)
-                .setCancelable(false)
-                .setTitle("アプリを選択してください")
-                .setMessage("選択してOKを押下すると詳細な情報が表示されます")
-                .setPositiveButton("OK", (dialog, which) -> {
-                    StringBuilder str = new StringBuilder();
-
-                    for (int i = 0; i < listView.getCount(); i++) {
-                        RadioButton radioButton = listView.getChildAt(i).findViewById(R.id.v_app_list_radio);
-                        if (radioButton.isChecked()) {
-                            try {
-                                JSONObject jsonObj1 = parseJson();
-                                JSONObject jsonObj2 = jsonObj1.getJSONObject("setupLogin");
-                                JSONArray jsonArray = jsonObj2.getJSONArray("appList");
-                                str.append("アプリ名：").append(jsonArray.getJSONObject(i).getString("name")).append("\n\n").append("説明：").append(jsonArray.getJSONObject(i).getString("description")).append("\n");
-                                DOWNLOAD_FILE_URL = jsonArray.getJSONObject(i).getString("url");
-                                tmpIndex = i;
-                            } catch (JSONException | IOException ignored) {
-                            }
-                        }
-                    }
-
-                    if (str.toString().isEmpty()) {
-                        return;
-                    }
+            ListView listView = findViewById(R.id.main_listview);
+            listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+            listView.setAdapter(new AppListView.AppListAdapter(this, appDataArrayList));
+            listView.setOnItemClickListener((parent, view1, position, id) -> {
+                try {
+                    DOWNLOAD_FILE_URL = jsonArray.getJSONObject(position).getString("url");
+                    tmpIndex = position;
 
                     new AlertDialog.Builder(this)
-                            .setCancelable(false)
-                            .setMessage(str + "\n" + "よろしければOKを押下してください")
-                            .setNegativeButton("キャンセル", (dialog1, which1) -> selectApkDialog())
+                            .setMessage("アプリ名：" + jsonArray.getJSONObject(position).getString("name") + "\n\n" + "説明：" + jsonArray.getJSONObject(position).getString("description") + "\n\n" + "よろしければOKを押下してください")
+                            .setNegativeButton("キャンセル", (dialog1, which1) -> init())
                             .setPositiveButton("OK", (dialog2, which2) -> {
                                 if (!Objects.equals(DOWNLOAD_FILE_URL, "SETTINGS")) {
                                     showLoadingDialog();
                                     startDownload();
-                                    dialog.dismiss();
                                 } else {
-                                    try {
-                                        Settings.System.putInt(getContentResolver(), "dcha_state", 3);
-                                    } catch (Exception ignored) {
-                                    }
+                                    Settings.System.putInt(getContentResolver(), "dcha_state", 3);
                                     startActivity(new Intent().setClassName("com.android.settings", "com.android.settings.Settings"));
                                 }
                             })
                             .show();
-                })
-                .show();
+                } catch (Exception e) {
+                    new AlertDialog.Builder(this)
+                            .setTitle("エラーが発生しました")
+                            .setMessage(e.getMessage())
+                            .setPositiveButton("OK", null)
+                            .show();
+                }
+            });
+        } catch (Exception e) {
+            new AlertDialog.Builder(this)
+                    .setTitle("エラーが発生しました")
+                    .setMessage(e.getMessage())
+                    .setPositiveButton("OK", null)
+                    .show();
+        }
     }
 
     @SuppressWarnings("deprecation")
@@ -156,9 +133,15 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     JSONObject jsonObj1 = parseJson();
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("setupLogin");
                     JSONArray jsonArray = jsonObj2.getJSONArray("appList");
+                    Settings.System.putInt(getContentResolver(), "dcha_state", 0);
+                    Settings.System.putInt(getContentResolver(), "hide_navigation_bar", 0);
                     MainActivity.this.startActivity(getPackageManager().getLaunchIntentForPackage(jsonArray.getJSONObject(tmpIndex).getString("packageName")));
-                } catch (JSONException | IOException | NullPointerException ignored) {
-                    selectApkDialog();
+                } catch (Exception e) {
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("エラーが発生しました")
+                            .setMessage(e.getMessage())
+                            .setPositiveButton("OK", (dialog, which) -> init())
+                            .show();
                 }
             }
 
@@ -172,7 +155,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 new AlertDialog.Builder(MainActivity.this)
                         .setMessage("インストールに失敗しました")
                         .setCancelable(false)
-                        .setPositiveButton("OK", (dialog, which) -> selectApkDialog())
+                        .setPositiveButton("OK", (dialog, which) -> init())
                         .show();
             }
         };
@@ -182,7 +165,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
     @Override
     public void onDownloadComplete(int reqCode) {
         if (reqCode == Constants.REQUEST_DOWNLOAD_CHECK_FILE) {
-            selectApkDialog();
+            init();
         } else if (reqCode == Constants.REQUEST_DOWNLOAD_APK) {
             cancelLoadingDialog();
             new DchaInstallTask().execute(this, installListener(), new File(getExternalCacheDir(), "base.apk").getAbsolutePath());
@@ -195,7 +178,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setMessage("ダウンロードに失敗しました\nネットワークが安定しているか確認してください")
-                .setPositiveButton("OK", (dialog, which) -> selectApkDialog())
+                .setPositiveButton("OK", (dialog, which) -> init())
                 .show();
     }
 
@@ -205,14 +188,14 @@ public class MainActivity extends Activity implements DownloadEventListener {
         new AlertDialog.Builder(this)
                 .setCancelable(false)
                 .setMessage("データ取得に失敗しました\nネットワークを確認してください")
-                .setPositiveButton("OK", (dialog, which) -> selectApkDialog())
+                .setPositiveButton("OK", (dialog, which) -> init())
                 .show();
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
-        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています...\nしばらくお待ち下さい...\n進行状況：").append(progress).append("%"));
+        progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています…\nしばらくお待ち下さい…\n進行状況：").append(progress).append("%"));
         progressDialog.setProgress(progress);
     }
 

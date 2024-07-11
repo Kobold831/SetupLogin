@@ -10,10 +10,16 @@ android {
         minSdk 22
         //noinspection ExpiredTargetSdkVersion
         targetSdk 22
-        versionCode 3
-        versionName "1.2"
+        versionCode 4
+        versionName "1.3"
         proguardFiles += 'proguard-rules.pro'
         multiDexEnabled false
+    }
+
+    android {
+        buildFeatures {
+            buildConfig true
+        }
     }
 
     buildTypes {
@@ -33,5 +39,10 @@ android {
 }
 
 dependencies {
+
+    //Lib
     implementation files('libs/IDchaLibrary.jar')
+
+    //SupportLibrary
+    implementation 'com.android.support:support-annotations:28.0.0'
 }

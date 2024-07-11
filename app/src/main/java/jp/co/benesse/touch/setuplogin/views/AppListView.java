@@ -1,18 +1,16 @@
 package jp.co.benesse.touch.setuplogin.views;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.RadioButton;
 import android.widget.TextView;
 
 import java.util.List;
 
 import jp.co.benesse.touch.setuplogin.R;
-import jp.co.benesse.touch.setuplogin.util.Constants;
-import jp.co.benesse.touch.setuplogin.util.Preferences;
 
 public class AppListView {
 
@@ -30,8 +28,9 @@ public class AppListView {
             addAll(dataList);
         }
 
+        @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
             AppListView.ViewHolder holder = new AppListView.ViewHolder();
 
@@ -48,10 +47,6 @@ public class AppListView {
             if (data != null) {
                 holder.tv.setText(data.str);
             }
-
-            /* RadioButtonの更新 */
-            RadioButton button = convertView.findViewById(R.id.v_app_list_radio);
-            button.setChecked(Preferences.load(getContext(), Constants.KEY_RADIO_TMP, 0) == position);
 
             return convertView;
         }

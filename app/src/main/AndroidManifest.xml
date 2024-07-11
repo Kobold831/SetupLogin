@@ -12,11 +12,10 @@
         android:allowBackup="false"
         android:icon="@android:mipmap/sym_def_app_icon"
         android:label="SetupLogin"
-        android:theme="@android:style/Theme.Light">
+        android:theme="@android:style/Theme.Light.NoTitleBar">
 
         <activity
             android:name=".MainActivity"
-            android:alwaysRetainTaskState="true"
             android:configChanges="keyboardHidden|screenSize|orientation"
             android:exported="true">
             <intent-filter>
