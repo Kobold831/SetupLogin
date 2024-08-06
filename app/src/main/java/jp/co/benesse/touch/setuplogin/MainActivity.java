@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.widget.AbsListView;
@@ -44,11 +45,15 @@ public class MainActivity extends Activity implements DownloadEventListener {
         TextView textView = findViewById(R.id.main_text_v);
         textView.setText(new StringBuilder("v").append(BuildConfig.VERSION_NAME));
 
+        startActivityForResult(new Intent().setClassName("jp.co.benesse.dcha.systemsettings", "jp.co.benesse.dcha.systemsettings.TabletInfoSettingActivity"), 0);
+
         try {
-            Settings.System.putInt(getContentResolver(), "dcha_state", 3);
+            Settings.System.putInt(getContentResolver(), "dcha_state", 2);
             Settings.System.putInt(getContentResolver(), "hide_navigation_bar", 0);
         } catch (Exception ignored) {
         }
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> finishActivity(0), 1000);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
@@ -86,7 +91,9 @@ public class MainActivity extends Activity implements DownloadEventListener {
                                     startDownload();
                                 } else {
                                     Settings.System.putInt(getContentResolver(), "dcha_state", 3);
+                                    Settings.System.putInt(getContentResolver(), "hide_navigation_bar", 0);
                                     startActivity(new Intent().setClassName("com.android.settings", "com.android.settings.Settings"));
+                                    finishAffinity();
                                 }
                             })
                             .show();
@@ -133,9 +140,11 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     JSONObject jsonObj1 = parseJson();
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("setupLogin");
                     JSONArray jsonArray = jsonObj2.getJSONArray("appList");
+                    Settings.System.putInt(getContentResolver(), "dcha_state", 3);
                     Settings.System.putInt(getContentResolver(), "dcha_state", 0);
                     Settings.System.putInt(getContentResolver(), "hide_navigation_bar", 0);
                     MainActivity.this.startActivity(getPackageManager().getLaunchIntentForPackage(jsonArray.getJSONObject(tmpIndex).getString("packageName")));
+                    finishAffinity();
                 } catch (Exception e) {
                     new AlertDialog.Builder(MainActivity.this)
                             .setTitle("エラーが発生しました")
