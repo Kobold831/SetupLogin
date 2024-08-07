@@ -26,12 +26,10 @@ public class DchaInstallTask {
             new Thread(() -> {
                 tryBindDchaService(context, mDchaService, mDchaServiceConnection, Constants.FLAG_CHECK, 0, "");
 
-                Runnable runnable = () -> {
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     Boolean result = doInBackground(context, installData);
                     handler.post(() -> onPostExecute(listener, result));
-                };
-
-                new Handler(Looper.getMainLooper()).postDelayed(runnable, 1000);
+                }, 1000);
             }).start();
         });
     }

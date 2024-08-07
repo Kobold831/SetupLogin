@@ -3,11 +3,14 @@ package jp.co.benesse.touch.setuplogin;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
-import android.provider.Settings;
+import android.os.RemoteException;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -23,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import jp.co.benesse.dcha.dchaservice.IDchaService;
 import jp.co.benesse.touch.setuplogin.data.event.DownloadEventListener;
 import jp.co.benesse.touch.setuplogin.data.handler.ProgressHandler;
 import jp.co.benesse.touch.setuplogin.data.task.DchaInstallTask;
@@ -45,15 +49,23 @@ public class MainActivity extends Activity implements DownloadEventListener {
         TextView textView = findViewById(R.id.main_text_v);
         textView.setText(new StringBuilder("v").append(BuildConfig.VERSION_NAME));
 
-        startActivityForResult(new Intent().setClassName("jp.co.benesse.dcha.systemsettings", "jp.co.benesse.dcha.systemsettings.TabletInfoSettingActivity"), 0);
+        bindService(new Intent("jp.co.benesse.dcha.dchaservice.DchaService").setPackage("jp.co.benesse.dcha.dchaservice"), new ServiceConnection() {
 
-        try {
-            Settings.System.putInt(getContentResolver(), "dcha_state", 2);
-            Settings.System.putInt(getContentResolver(), "hide_navigation_bar", 0);
-        } catch (Exception ignored) {
-        }
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                try {
+                    IDchaService mDchaService = IDchaService.Stub.asInterface(iBinder);
+                    mDchaService.setSetupStatus(3);
+                    mDchaService.hideNavigationBar(false);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
-        new Handler(Looper.getMainLooper()).postDelayed(() -> finishActivity(0), 1000);
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+            }
+        }, Context.BIND_AUTO_CREATE);
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
@@ -90,8 +102,23 @@ public class MainActivity extends Activity implements DownloadEventListener {
                                     showLoadingDialog();
                                     startDownload();
                                 } else {
-                                    Settings.System.putInt(getContentResolver(), "dcha_state", 3);
-                                    Settings.System.putInt(getContentResolver(), "hide_navigation_bar", 0);
+                                    bindService(new Intent("jp.co.benesse.dcha.dchaservice.DchaService").setPackage("jp.co.benesse.dcha.dchaservice"), new ServiceConnection() {
+
+                                        @Override
+                                        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                                            try {
+                                                IDchaService mDchaService = IDchaService.Stub.asInterface(iBinder);
+                                                mDchaService.setSetupStatus(3);
+                                                mDchaService.hideNavigationBar(false);
+                                            } catch (RemoteException e) {
+                                                throw new RuntimeException(e);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onServiceDisconnected(ComponentName componentName) {
+                                        }
+                                    }, Context.BIND_AUTO_CREATE);
                                     startActivity(new Intent().setClassName("com.android.settings", "com.android.settings.Settings"));
                                     finishAffinity();
                                 }
@@ -140,9 +167,23 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     JSONObject jsonObj1 = parseJson();
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("setupLogin");
                     JSONArray jsonArray = jsonObj2.getJSONArray("appList");
-                    Settings.System.putInt(getContentResolver(), "dcha_state", 3);
-                    Settings.System.putInt(getContentResolver(), "dcha_state", 0);
-                    Settings.System.putInt(getContentResolver(), "hide_navigation_bar", 0);
+                    bindService(new Intent("jp.co.benesse.dcha.dchaservice.DchaService").setPackage("jp.co.benesse.dcha.dchaservice"), new ServiceConnection() {
+
+                        @Override
+                        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                            try {
+                                IDchaService mDchaService = IDchaService.Stub.asInterface(iBinder);
+                                mDchaService.setSetupStatus(0);
+                                mDchaService.hideNavigationBar(false);
+                            } catch (RemoteException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+
+                        @Override
+                        public void onServiceDisconnected(ComponentName componentName) {
+                        }
+                    }, Context.BIND_AUTO_CREATE);
                     MainActivity.this.startActivity(getPackageManager().getLaunchIntentForPackage(jsonArray.getJSONObject(tmpIndex).getString("packageName")));
                     finishAffinity();
                 } catch (Exception e) {
