@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.BenesseExtension;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
@@ -39,6 +40,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
     ProgressDialog progressDialog;
     String DOWNLOAD_FILE_URL;
     int tmpIndex;
+    static final String BC_PASSWORD_HIT_FLAG = "bc_password_hit";
 
     @SuppressWarnings("deprecation")
     @Override
@@ -74,6 +76,11 @@ public class MainActivity extends Activity implements DownloadEventListener {
     }
 
     private void init() {
+        try {
+            BenesseExtension.putInt(BC_PASSWORD_HIT_FLAG, 1);
+        } catch (SecurityException | NoClassDefFoundError | NoSuchMethodError ignored) {
+        }
+
         try {
             ArrayList<AppListView.AppData> appDataArrayList = new ArrayList<>();
             JSONObject jsonObj1 = parseJson();

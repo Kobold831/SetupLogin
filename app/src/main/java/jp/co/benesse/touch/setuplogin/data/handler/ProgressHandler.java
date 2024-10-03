@@ -3,7 +3,6 @@ package jp.co.benesse.touch.setuplogin.data.handler;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.NonNull;
 
 import jp.co.benesse.touch.setuplogin.data.task.FileDownloadTask;
 
@@ -16,7 +15,7 @@ public class ProgressHandler extends Handler {
     }
 
     @Override
-    public void handleMessage(@NonNull Message msg) {
+    public void handleMessage(Message msg) {
         super.handleMessage(msg);
 
         if (fileDownloadTask.getLoadedBytePercent() >= 100) {
