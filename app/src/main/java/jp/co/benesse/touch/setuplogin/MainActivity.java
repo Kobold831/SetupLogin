@@ -7,11 +7,11 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.BenesseExtension;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.provider.Settings;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -76,10 +76,8 @@ public class MainActivity extends Activity implements DownloadEventListener {
     }
 
     private void init() {
-        try {
-            BenesseExtension.putInt(BC_PASSWORD_HIT_FLAG, 1);
-        } catch (SecurityException | NoClassDefFoundError | NoSuchMethodError ignored) {
-        }
+        // BenesseExtension 搭載機において ADB の無効化を阻止
+        Settings.System.putInt(getContentResolver(), BC_PASSWORD_HIT_FLAG, 1);
 
         try {
             ArrayList<AppListView.AppData> appDataArrayList = new ArrayList<>();
