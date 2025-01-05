@@ -7,6 +7,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
@@ -15,6 +17,7 @@ import android.provider.Settings;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,6 +28,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
@@ -32,8 +36,9 @@ import jp.co.benesse.touch.setuplogin.data.event.DownloadEventListener;
 import jp.co.benesse.touch.setuplogin.data.handler.ProgressHandler;
 import jp.co.benesse.touch.setuplogin.data.task.DchaInstallTask;
 import jp.co.benesse.touch.setuplogin.data.task.FileDownloadTask;
-import jp.co.benesse.touch.setuplogin.util.Constants;
 import jp.co.benesse.touch.setuplogin.views.AppListView;
+
+import static jp.co.benesse.touch.setuplogin.util.Constants.*;
 
 /**
  * SetupLogin
@@ -45,17 +50,26 @@ public class MainActivity extends Activity implements DownloadEventListener {
     ProgressDialog progressDialog;
     String DOWNLOAD_FILE_URL;
     int tmpIndex;
-    static final String BC_PASSWORD_HIT_FLAG = "bc_password_hit";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        try {
+            if (new ArrayList<>(Arrays.asList(CT2_MODELS)).contains(Build.PRODUCT) && getPackageManager().getPackageInfo(DCHA_PACKAGE, 0).versionCode < 5) {
+                Toast.makeText(this, "このビルドではご利用できません", Toast.LENGTH_LONG).show();
+                finishAndRemoveTask();
+            }
+        } catch (PackageManager.NameNotFoundException ignored) {
+            Toast.makeText(this, "DchaService が存在しません", Toast.LENGTH_LONG).show();
+            finishAndRemoveTask();
+        }
+
         TextView textView = findViewById(R.id.main_text_v);
         textView.setText(new StringBuilder("v").append(BuildConfig.VERSION_NAME));
 
-        bindService(new Intent("jp.co.benesse.dcha.dchaservice.DchaService").setPackage("jp.co.benesse.dcha.dchaservice"), new ServiceConnection() {
+        bindService(new Intent(DCHA_SERVICE).setPackage(DCHA_PACKAGE), new ServiceConnection() {
 
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -74,7 +88,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
         progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        new FileDownloadTask().execute(this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_CHECK_FILE);
+        new FileDownloadTask().execute(this, URL_CHECK, new File(getExternalCacheDir(), "Check.json"), REQUEST_DOWNLOAD_CHECK_FILE);
     }
 
     private void init() {
@@ -173,7 +187,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     JSONObject jsonObj1 = parseJson();
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("setupLogin");
                     JSONArray jsonArray = jsonObj2.getJSONArray("appList");
-                    bindService(new Intent("jp.co.benesse.dcha.dchaservice.DchaService").setPackage("jp.co.benesse.dcha.dchaservice"), new ServiceConnection() {
+                    bindService(new Intent(DCHA_SERVICE).setPackage(DCHA_PACKAGE), new ServiceConnection() {
 
                         @Override
                         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -220,9 +234,9 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
     @Override
     public void onDownloadComplete(int reqCode) {
-        if (reqCode == Constants.REQUEST_DOWNLOAD_CHECK_FILE) {
+        if (reqCode == REQUEST_DOWNLOAD_CHECK_FILE) {
             init();
-        } else if (reqCode == Constants.REQUEST_DOWNLOAD_APK) {
+        } else if (reqCode == REQUEST_DOWNLOAD_APK) {
             cancelLoadingDialog();
             new DchaInstallTask().execute(this, installListener(), new File(getExternalCacheDir(), "base.apk").getAbsolutePath());
         }
@@ -273,7 +287,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
     private void startDownload() {
         FileDownloadTask fileDownloadTask = new FileDownloadTask();
-        fileDownloadTask.execute(this, DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "base.apk"), Constants.REQUEST_DOWNLOAD_APK);
+        fileDownloadTask.execute(this, DOWNLOAD_FILE_URL, new File(getExternalCacheDir(), "base.apk"), REQUEST_DOWNLOAD_APK);
         ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
         progressHandler.fileDownloadTask = fileDownloadTask;
         progressHandler.sendEmptyMessage(0);
