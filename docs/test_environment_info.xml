@@ -1,6 +1,6 @@
 <connect_info>
-  <environment>TouchSetupLoginバイパス有効</environment>
-  <version>v1.5</version>
+  <environment>TouchSetupLogin バイパス有効</environment>
+  <version>v1.6</version>
   <id>townak</id>
   <url>https://github.com/Kobold831/SetupLogin/releases/download/</url>
   <text></text>

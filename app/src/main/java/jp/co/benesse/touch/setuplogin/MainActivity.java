@@ -35,6 +35,11 @@ import jp.co.benesse.touch.setuplogin.data.task.FileDownloadTask;
 import jp.co.benesse.touch.setuplogin.util.Constants;
 import jp.co.benesse.touch.setuplogin.views.AppListView;
 
+/**
+ * SetupLogin
+ * @author Kobold
+ * @noinspection deprecation <b>{@code ProgressDialog}</b>
+ */
 public class MainActivity extends Activity implements DownloadEventListener {
 
     ProgressDialog progressDialog;
@@ -42,7 +47,6 @@ public class MainActivity extends Activity implements DownloadEventListener {
     int tmpIndex;
     static final String BC_PASSWORD_HIT_FLAG = "bc_password_hit";
 
-    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,11 +63,9 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     IDchaService mDchaService = IDchaService.Stub.asInterface(iBinder);
                     mDchaService.setSetupStatus(3);
                     mDchaService.hideNavigationBar(false);
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
+                } catch (RemoteException ignored) {
                 }
             }
-
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
             }
@@ -100,7 +102,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     tmpIndex = position;
 
                     new AlertDialog.Builder(this)
-                            .setMessage("アプリ名：" + jsonArray.getJSONObject(position).getString("name") + "\n\n" + "説明：" + jsonArray.getJSONObject(position).getString("description") + "\n\n" + "よろしければOKを押下してください")
+                            .setMessage("アプリ名：" + jsonArray.getJSONObject(position).getString("name") + "\n\n" + "詳細：" + jsonArray.getJSONObject(position).getString("description") + "\n\n" + "続行する場合はOKを押してください")
                             .setNegativeButton("キャンセル", (dialog1, which1) -> init())
                             .setPositiveButton("OK", (dialog2, which2) -> {
                                 if (!Objects.equals(DOWNLOAD_FILE_URL, "SETTINGS")) {
@@ -146,7 +148,6 @@ public class MainActivity extends Activity implements DownloadEventListener {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public DchaInstallTask.Listener installListener() {
         return new DchaInstallTask.Listener() {
 
@@ -247,7 +248,6 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 .show();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onProgressUpdate(int progress, int currentByte, int totalByte) {
         progressDialog.setMessage(new StringBuilder("インストールファイルをサーバーからダウンロードしています…\nしばらくお待ち下さい…\n進行状況：").append(progress).append("%"));
@@ -279,7 +279,6 @@ public class MainActivity extends Activity implements DownloadEventListener {
         progressHandler.sendEmptyMessage(0);
     }
 
-    @SuppressWarnings("deprecation")
     public void showLoadingDialog() {
         progressDialog.setMessage("");
         progressDialog.show();

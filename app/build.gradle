@@ -3,41 +3,50 @@ plugins {
 }
 
 android {
-    namespace 'jp.co.benesse.touch.setuplogin'
-    compileSdk 34
+    namespace = 'jp.co.benesse.touch.setuplogin'
+    compileSdk = 35
 
     defaultConfig {
-        minSdk 22
+        minSdk = 22
         //noinspection ExpiredTargetSdkVersion
-        targetSdk 22
-        versionCode 7
-        versionName "1.6"
+        targetSdk = 22
+        versionCode = 7
+        versionName = "1.6"
         proguardFiles += 'proguard-rules.pro'
-        multiDexEnabled false
+        multiDexEnabled = false
     }
 
     android {
         buildFeatures {
-            buildConfig true
+            buildConfig = true
         }
     }
 
     buildTypes {
-        debug {
-            signingConfig signingConfigs.debug
+        configureEach {
+            signingConfig = signingConfigs.debug
         }
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+
+    lintOptions {
+        abortOnError = false
+        ignore 'ProtectedPermissions', 'HardcodedText'
     }
 }
 
 dependencies {
     implementation files('libs/DchaService.jar')
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
 }

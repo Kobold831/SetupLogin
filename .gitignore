@@ -7,7 +7,7 @@
 # VSCode
 /.vscode/
 # Gradle Build
-/app/build/
+build/
 # Android Studio Signing APK
 /app/debug/
 /app/release/
