@@ -1,20 +1,17 @@
 package jp.co.benesse.touch.setuplogin.data.task;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
-import jp.co.benesse.touch.setuplogin.util.Constants;
 
 public class DchaInstallTask {
+
+    final Object objLock = new Object();
 
     IDchaService mDchaService;
 
@@ -24,12 +21,8 @@ public class DchaInstallTask {
         executorService.submit(() -> {
             Handler handler = new Handler(Looper.getMainLooper());
             new Thread(() -> {
-                tryBindDchaService(context, mDchaService, mDchaServiceConnection, Constants.FLAG_CHECK, 0, "");
-
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    Boolean result = doInBackground(context, installData);
-                    handler.post(() -> onPostExecute(listener, result));
-                }, 1000);
+                boolean result = doInBackground(context, installData);
+                handler.post(() -> onPostExecute(listener, result));
             }).start();
         });
     }
@@ -38,7 +31,7 @@ public class DchaInstallTask {
         listener.onShow();
     }
 
-    void onPostExecute(Listener listener, Boolean result) {
+    void onPostExecute(Listener listener, boolean result) {
         if (result) {
             listener.onSuccess();
         } else {
@@ -46,12 +39,20 @@ public class DchaInstallTask {
         }
     }
 
-    protected Boolean doInBackground(Context context, String installData) {
-        return tryBindDchaService(context, mDchaService, mDchaServiceConnection, Constants.FLAG_INSTALL_PACKAGE, 0, installData);
+    protected boolean doInBackground(Context context, String installData) {
+        try {
+            new IDchaTask().execute(context, iDchaTaskListener());
+            synchronized (objLock) {
+                objLock.wait();
+            }
+            if (mDchaService == null) return false;
+            return mDchaService.installApp(installData, 0);
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
     public interface Listener {
-
         void onShow();
 
         void onSuccess();
@@ -59,29 +60,22 @@ public class DchaInstallTask {
         void onFailure();
     }
 
-    ServiceConnection mDchaServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            mDchaService = IDchaService.Stub.asInterface(iBinder);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-        }
-    };
-
-    public static boolean tryBindDchaService(Context context, IDchaService iDchaService, ServiceConnection serviceConnection, int reqCode, int i, String s) {
-        try {
-            switch (reqCode) {
-                case Constants.FLAG_INSTALL_PACKAGE:
-                    return iDchaService.installApp(s, i);
-                case Constants.FLAG_CHECK:
-                    return context.getApplicationContext().bindService(new Intent("jp.co.benesse.dcha.dchaservice.DchaService").setPackage("jp.co.benesse.dcha.dchaservice"), serviceConnection, Context.BIND_AUTO_CREATE);
+    private IDchaTask.Listener iDchaTaskListener() {
+        return new IDchaTask.Listener() {
+            @Override
+            public void onSuccess(IDchaService iDchaService) {
+                mDchaService = iDchaService;
+                synchronized (objLock) {
+                    objLock.notify();
+                }
             }
-        } catch (Exception ignored) {
-            return false;
-        }
-        return false;
+
+            @Override
+            public void onFailure() {
+                synchronized (objLock) {
+                    objLock.notify();
+                }
+            }
+        };
     }
 }

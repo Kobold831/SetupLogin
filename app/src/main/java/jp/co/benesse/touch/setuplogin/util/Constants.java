@@ -12,9 +12,6 @@ public class Constants {
             "TAB-A03-BR2" // CT2L
     };
 
-    public static final int FLAG_CHECK = 0;
-    public static final int FLAG_INSTALL_PACKAGE = 1;
-
     public static final int REQUEST_DOWNLOAD_CHECK_FILE = 0;
     public static final int REQUEST_DOWNLOAD_APK = 1;
 

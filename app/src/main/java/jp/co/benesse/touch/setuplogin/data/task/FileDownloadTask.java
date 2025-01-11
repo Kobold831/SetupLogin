@@ -42,7 +42,7 @@ public class FileDownloadTask {
     void onPostExecute(Boolean result, int reqCode) {
         if (result != null) {
             if (result) {
-                currentByte = totalByte;
+                totalByte = -1;
                 downloadEventListenerList.downloadCompleteNotify(reqCode);
             } else {
                 totalByte = -1;

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ダイアログボタン -->
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">キャンセル</string>
+
+    <!-- ダイアログタイトル -->
+    <string name="dialog_title_error">エラーの発生</string>
+
+    <!-- ダイアログメッセージ -->
+    <string name="dialog_failure_silent_install">サイレントインストールに失敗しました。</string>
+    <string name="dialog_success_silent_install">サイレントインストールに成功しました。</string>
+
+    <!-- ダイアログエラー -->
+    <string name="dialog_error">エラーが発生しました。</string>
+    <string name="dialog_error_connection">"データ取得に失敗しました。ネットワークを確認してください。"</string>
+    <string name="dialog_error_download">"ダウンロードに失敗しました。ネットワークを確認してください。"</string>
+    <string name="dialog_error_check_dcha">DchaService が動作していません。 OK を押すと、メイン画面に戻ります。</string>
+    <string name="dialog_error_check_device">この端末はサポートされていません。このアプリは使用できません。</string>
+
+    <!-- 進行バー -->
+    <string name="progress_state_connecting">サーバーと通信しています。画面を切り替えないでください。</string>
+    <string name="progress_state_download_file">ファイルをサーバーからダウンロードしています。画面を切り替えないでください。</string>
+    <string name="progress_state_installing">インストールしています。画面を切り替えないでください。</string>
+</resources>
