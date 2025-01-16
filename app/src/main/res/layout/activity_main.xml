@@ -4,28 +4,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
-        android:text="インストールしたいアプリを押下すると詳細な情報が表示されます"
-        android:textColor="#DC143C"
-        android:textSize="24sp" />
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:text="インストールしたいアプリを選択してください。"
+            android:textSize="24sp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/main_text_v"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end" />
+    </FrameLayout>
 
     <ListView
         android:id="@+id/main_listview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="16dp"
-        android:layout_weight="1" />
-
-    <TextView
-        android:id="@+id/main_text_v"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:gravity="end"
-        android:textSize="24sp" />
-
+        android:layout_weight="1"
+        android:layout_marginHorizontal="16dp" />
 </LinearLayout>

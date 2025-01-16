@@ -11,7 +11,7 @@
         android:allowBackup="false"
         android:icon="@android:drawable/ic_menu_upload"
         android:label="SetupLogin"
-        android:theme="@android:style/Theme.Light.NoTitleBar">
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
 
         <activity
             android:name=".MainActivity"

@@ -96,6 +96,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 try {
                     IDchaService iDchaService = IDchaService.Stub.asInterface(iBinder);
                     iDchaService.setSetupStatus(3);
+                    iDchaService.setSetupStatus(0);
                     iDchaService.hideNavigationBar(false);
 
                     // BenesseExtension 搭載機において ADB の無効化を阻止
@@ -127,8 +128,6 @@ public class MainActivity extends Activity implements DownloadEventListener {
     // jsonダウンロード完了時にリストの初期化処理
     private void init() {
         try {
-            StringBuilder str = new StringBuilder();
-
             ArrayList<AppListView.AppData> appDataArrayList = new ArrayList<>();
             JSONObject jsonObj1 = parseJson();
             JSONObject jsonObj2 = jsonObj1.getJSONObject("setupLogin");
@@ -147,10 +146,8 @@ public class MainActivity extends Activity implements DownloadEventListener {
                 try {
                     tmpIndex = position;
 
-                    str.append("アプリ名：").append(jsonArray.getJSONObject(position).getString("name")).append("\n\n").append("説明：").append(jsonArray.getJSONObject(position).getString("description")).append("\n");
-
                     new AlertDialog.Builder(this)
-                            .setMessage(str + "\n" + "よろしければ OK を押下してください。")
+                            .setMessage("アプリ名：" + "\n" + jsonArray.getJSONObject(position).getString("name") + "\n\n" + "説明：" + "\n" + jsonArray.getJSONObject(position).getString("description") + "\n" + "\n" + "よろしければ OK を押下してください。")
                             .setNegativeButton(R.string.dialog_cancel, null)
                             .setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
                                 try {
@@ -224,11 +221,6 @@ public class MainActivity extends Activity implements DownloadEventListener {
             public void onSuccess() {
                 try {
                     cancelLoadingDialog();
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setMessage(R.string.dialog_success_silent_install)
-                            .setCancelable(false)
-                            .setPositiveButton(R.string.dialog_ok, null)
-                            .show();
 
                     JSONObject jsonObj1 = parseJson();
                     JSONObject jsonObj2 = jsonObj1.getJSONObject("setupLogin");
@@ -348,7 +340,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
 
     private void startDownload(String downloadFileUrl) {
         FileDownloadTask fileDownloadTask = new FileDownloadTask();
-        fileDownloadTask.execute(this, downloadFileUrl, new File(getExternalCacheDir(), "update.apk"), Constants.REQUEST_DOWNLOAD_APK);
+        fileDownloadTask.execute(this, downloadFileUrl, new File(getExternalCacheDir(), "base.apk"), Constants.REQUEST_DOWNLOAD_APK);
         ProgressHandler progressHandler = new ProgressHandler(Looper.getMainLooper());
         progressHandler.fileDownloadTask = fileDownloadTask;
         progressHandler.sendEmptyMessage(0);
