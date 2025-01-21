@@ -14,7 +14,11 @@ import jp.co.benesse.touch.setuplogin.R;
 public class AppListView {
 
     public static class AppData {
-        public String appName;
+        public String name;
+        public String description;
+        public String url;
+        public String packageName;
+        public boolean appOpen;
     }
 
     public static class AppListAdapter extends ArrayAdapter<AppListView.AppData> {
@@ -43,7 +47,7 @@ public class AppListView {
             final AppListView.AppData data = getItem(position);
 
             if (data != null) {
-                holder.textView.setText(data.appName);
+                holder.textView.setText(data.name);
             }
 
             return convertView;

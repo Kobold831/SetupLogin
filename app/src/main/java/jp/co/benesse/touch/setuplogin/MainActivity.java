@@ -45,7 +45,8 @@ import jp.co.benesse.touch.setuplogin.views.AppListView;
  */
 public class MainActivity extends Activity implements DownloadEventListener {
 
-    int tmpIndex;
+    String tmpPackageName;
+    boolean tmpAppOpen;
 
     AlertDialog progressDialog;
     TextView progressPercentText;
@@ -133,10 +134,28 @@ public class MainActivity extends Activity implements DownloadEventListener {
             JSONObject jsonObj2 = jsonObj1.getJSONObject("setupLogin");
             JSONArray jsonArray = jsonObj2.getJSONArray("appList");
 
+            String model;
+
+            switch (Build.MODEL) {
+                case "TAB-A03-BR3" -> model = "CT3";
+                case "TAB-A05-BD" -> model = "CTX";
+                case "TAB-A05-BA1" -> model = "CTZ";
+                default -> model = "CT2";
+            }
+
             for (int i = 0; i < jsonArray.length(); i++) {
-                AppListView.AppData data = new AppListView.AppData();
-                data.appName = jsonArray.getJSONObject(i).getString("name");
-                appDataArrayList.add(data);
+                JSONArray jsonArray1 = jsonArray.getJSONObject(i).getJSONArray("targetModel");
+                for (int s = 0; s < jsonArray1.length(); s++) {
+                    if (Objects.equals(jsonArray1.getString(s), model) || jsonArray1.getString(s).isEmpty()) {
+                        AppListView.AppData data = new AppListView.AppData();
+                        data.packageName = jsonArray.getJSONObject(i).getString("packageName");
+                        data.name = jsonArray.getJSONObject(i).getString("name");
+                        data.description = jsonArray.getJSONObject(i).getString("description");
+                        data.url = jsonArray.getJSONObject(i).getString("url");
+                        data.appOpen = jsonArray.getJSONObject(i).getBoolean("appOpen");
+                        appDataArrayList.add(data);
+                    }
+                }
             }
 
             ListView listView = findViewById(R.id.main_listview);
@@ -144,15 +163,30 @@ public class MainActivity extends Activity implements DownloadEventListener {
             listView.setAdapter(new AppListView.AppListAdapter(this, appDataArrayList));
             listView.setOnItemClickListener((parent, view, position, id) -> {
                 try {
-                    tmpIndex = position;
+                    StringBuilder str = new StringBuilder();
+                    str.append("アプリ名：")
+                            .append("\n")
+                            .append(appDataArrayList.get(position).name)
+                            .append("\n\n")
+                            .append("説明：")
+                            .append("\n")
+                            .append(appDataArrayList.get(position).description)
+                            .append("\n");
+
+                    tmpPackageName = appDataArrayList.get(position).packageName;
+                    tmpAppOpen = appDataArrayList.get(position).appOpen;
+
+                    if (str.toString().isEmpty()) {
+                        return;
+                    }
 
                     new AlertDialog.Builder(this)
-                            .setMessage("アプリ名：" + "\n" + jsonArray.getJSONObject(position).getString("name") + "\n\n" + "説明：" + "\n" + jsonArray.getJSONObject(position).getString("description") + "\n" + "\n" + "よろしければ OK を押下してください。")
+                            .setMessage(str + "\n" + "よろしければ OK を押下してください。")
                             .setNegativeButton(R.string.dialog_cancel, null)
                             .setPositiveButton(R.string.dialog_ok, (dialog, which) -> {
                                 try {
-                                    if (!Objects.equals(jsonArray.getJSONObject(position).getString("url"), "SETTINGS")) {
-                                        startDownload(jsonArray.getJSONObject(position).getString("url"));
+                                    if (!Objects.equals(appDataArrayList.get(position).url, "SETTINGS")) {
+                                        startDownload(appDataArrayList.get(position).url);
                                     } else {
                                         bindService(new Intent(Constants.DCHA_SERVICE).setPackage(Constants.DCHA_PACKAGE), new ServiceConnection() {
 
@@ -167,6 +201,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                                                     finishAffinity();
                                                 } catch (Exception e) {
                                                     new AlertDialog.Builder(MainActivity.this)
+                                                            .setCancelable(false)
                                                             .setTitle(R.string.dialog_title_error)
                                                             .setMessage(e.getMessage())
                                                             .setPositiveButton(R.string.dialog_ok, (dialogInterface, i) -> check())
@@ -181,6 +216,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                                     }
                                 } catch (Exception e) {
                                     new AlertDialog.Builder(this)
+                                            .setCancelable(false)
                                             .setTitle(R.string.dialog_title_error)
                                             .setMessage(e.getMessage())
                                             .setPositiveButton(R.string.dialog_ok, (dialogInterface, i) -> check())
@@ -192,6 +228,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     listView.invalidateViews();
                 } catch (Exception e) {
                     new AlertDialog.Builder(this)
+                            .setCancelable(false)
                             .setTitle(R.string.dialog_title_error)
                             .setMessage(e.getMessage())
                             .setPositiveButton(R.string.dialog_ok, (dialogInterface, i) -> check())
@@ -200,6 +237,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
             });
         } catch (Exception e) {
             new AlertDialog.Builder(this)
+                    .setCancelable(false)
                     .setTitle(R.string.dialog_title_error)
                     .setMessage(e.getMessage())
                     .setPositiveButton(R.string.dialog_ok, (dialogInterface, i) -> check())
@@ -219,45 +257,42 @@ public class MainActivity extends Activity implements DownloadEventListener {
             /* 成功 */
             @Override
             public void onSuccess() {
-                try {
-                    cancelLoadingDialog();
+                cancelLoadingDialog();
 
-                    JSONObject jsonObj1 = parseJson();
-                    JSONObject jsonObj2 = jsonObj1.getJSONObject("setupLogin");
-                    JSONArray jsonArray = jsonObj2.getJSONArray("appList");
-                    bindService(new Intent(Constants.DCHA_SERVICE).setPackage(Constants.DCHA_PACKAGE), new ServiceConnection() {
-
-                        @Override
-                        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                            try {
-                                IDchaService iDchaService = IDchaService.Stub.asInterface(iBinder);
-                                iDchaService.setSetupStatus(0);
-                                iDchaService.hideNavigationBar(false);
-
-                                MainActivity.this.startActivity(getPackageManager().getLaunchIntentForPackage(jsonArray.getJSONObject(tmpIndex).getString("packageName")));
-                                finishAffinity();
-                            } catch (Exception e) {
-                                new AlertDialog.Builder(MainActivity.this)
-                                        .setCancelable(false)
-                                        .setTitle(R.string.dialog_title_error)
-                                        .setMessage(e.getMessage())
-                                        .setPositiveButton(R.string.dialog_ok, (dialogInterface, i) -> check())
-                                        .show();
-                            }
-                        }
-
-                        @Override
-                        public void onServiceDisconnected(ComponentName componentName) {
-                        }
-                    }, Context.BIND_AUTO_CREATE);
-                } catch (Exception e) {
+                if (!tmpAppOpen) {
                     new AlertDialog.Builder(MainActivity.this)
                             .setCancelable(false)
-                            .setTitle(R.string.dialog_title_error)
-                            .setMessage(e.getMessage())
-                            .setPositiveButton(R.string.dialog_ok, (dialog, which) -> check())
+                            .setMessage(R.string.dialog_success_silent_install)
+                            .setPositiveButton(R.string.dialog_ok, (dialogInterface, i) -> check())
                             .show();
+                    return;
                 }
+
+                bindService(new Intent(Constants.DCHA_SERVICE).setPackage(Constants.DCHA_PACKAGE), new ServiceConnection() {
+
+                    @Override
+                    public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                        try {
+                            IDchaService iDchaService = IDchaService.Stub.asInterface(iBinder);
+                            iDchaService.setSetupStatus(0);
+                            iDchaService.hideNavigationBar(false);
+
+                            MainActivity.this.startActivity(getPackageManager().getLaunchIntentForPackage(tmpPackageName));
+                            finishAffinity();
+                        } catch (Exception e) {
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setCancelable(false)
+                                    .setTitle(R.string.dialog_title_error)
+                                    .setMessage(e.getMessage())
+                                    .setPositiveButton(R.string.dialog_ok, (dialogInterface, i) -> check())
+                                    .show();
+                        }
+                    }
+
+                    @Override
+                    public void onServiceDisconnected(ComponentName componentName) {
+                    }
+                }, Context.BIND_AUTO_CREATE);
             }
 
             /* 失敗 */
@@ -292,6 +327,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                  Constants.REQUEST_DOWNLOAD_APK -> {
                 cancelLoadingDialog();
                 new AlertDialog.Builder(this)
+                        .setCancelable(false)
                         .setMessage(getString(R.string.dialog_error_download))
                         .setPositiveButton(R.string.dialog_ok, (dialogInterface, i) -> check())
                         .show();
@@ -306,6 +342,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                  Constants.REQUEST_DOWNLOAD_APK -> {
                 cancelLoadingDialog();
                 new AlertDialog.Builder(this)
+                        .setCancelable(false)
                         .setMessage(getString(R.string.dialog_error_connection))
                         .setPositiveButton(R.string.dialog_ok, (dialogInterface, i) -> check())
                         .show();
