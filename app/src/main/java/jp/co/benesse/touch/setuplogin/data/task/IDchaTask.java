@@ -32,13 +32,11 @@ public class IDchaTask {
 
     public interface Listener {
         void onSuccess(IDchaService iDchaService);
-
         void onFailure();
     }
 
     public boolean tryBindDchaService(Context context, Listener listener) {
         return context.bindService(new Intent(Constants.DCHA_SERVICE).setPackage(Constants.DCHA_PACKAGE), new ServiceConnection() {
-
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 IDchaService iDchaService = IDchaService.Stub.asInterface(iBinder);

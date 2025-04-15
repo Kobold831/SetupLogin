@@ -1,8 +1,6 @@
 package jp.co.benesse.touch.setuplogin.util;
 
 public class Constants {
-    public static final String BC_PASSWORD_HIT_FLAG = "bc_password_hit";
-
     public static final String DCHA_PACKAGE = "jp.co.benesse.dcha.dchaservice";
     public static final String DCHA_SERVICE = DCHA_PACKAGE + ".DchaService";
 

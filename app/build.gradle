@@ -39,12 +39,12 @@ android {
 
     lintOptions {
         abortOnError = false
-        ignore 'ProtectedPermissions', 'HardcodedText'
+        ignore 'HardcodedText'
     }
 }
 
 dependencies {
-    implementation files('libs/DchaService.jar')
+    implementation 'com.github.s1204IT:DchaService:1.0.0'
 }
 
 tasks.withType(JavaCompile).configureEach {

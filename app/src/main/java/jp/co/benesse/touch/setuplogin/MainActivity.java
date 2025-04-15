@@ -100,9 +100,6 @@ public class MainActivity extends Activity implements DownloadEventListener {
                     iDchaService.setSetupStatus(0);
                     iDchaService.hideNavigationBar(false);
 
-                    // BenesseExtension 搭載機において ADB の無効化を阻止
-                    Settings.System.putInt(getContentResolver(), Constants.BC_PASSWORD_HIT_FLAG, 1);
-
                     // json ダウンロード開始
                     new FileDownloadTask().execute(MainActivity.this, Constants.URL_CHECK, new File(getExternalCacheDir(), "Check.json"), Constants.REQUEST_DOWNLOAD_CHECK_FILE);
                 } catch (Exception ignored) {
@@ -197,7 +194,7 @@ public class MainActivity extends Activity implements DownloadEventListener {
                                                     iDchaService.setSetupStatus(3);
                                                     iDchaService.hideNavigationBar(false);
 
-                                                    startActivity(new Intent().setClassName("com.android.settings", "com.android.settings.Settings"));
+                                                    startActivity(new Intent(Settings.ACTION_SETTINGS));
                                                     finishAffinity();
                                                 } catch (Exception e) {
                                                     new AlertDialog.Builder(MainActivity.this)

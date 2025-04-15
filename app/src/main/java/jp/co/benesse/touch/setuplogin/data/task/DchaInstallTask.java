@@ -13,7 +13,7 @@ public class DchaInstallTask {
 
     final Object objLock = new Object();
 
-    IDchaService mDchaService;
+    IDchaService mDchaService = null;
 
     public void execute(Context context, Listener listener, String installData) {
         onPreExecute(listener);
@@ -54,9 +54,7 @@ public class DchaInstallTask {
 
     public interface Listener {
         void onShow();
-
         void onSuccess();
-
         void onFailure();
     }
 
@@ -69,7 +67,6 @@ public class DchaInstallTask {
                     objLock.notify();
                 }
             }
-
             @Override
             public void onFailure() {
                 synchronized (objLock) {
