@@ -4,7 +4,7 @@ pluginManagement {
         mavenCentral()
     }
     plugins {
-        id 'com.android.application' version '8.9.1' apply false
+        id 'com.android.application' version '8.9.2' apply false
     }
 }
 
@@ -12,7 +12,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url = 'https://jitpack.io' }
     }
 }
 

@@ -44,7 +44,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.github.s1204IT:DchaService:1.0.0'
+    implementation 'me.s1204:DchaService:1.0.0'
 }
 
 tasks.withType(JavaCompile).configureEach {
