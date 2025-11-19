@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center">
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="?attr/colorSurface">
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp" />
+        android:layout_marginEnd="16dp"
+        android:indeterminate="true"
+        style="@style/Widget.Material3.CircularProgressIndicator" />
 
     <TextView
         android:id="@+id/view_progress_spinner_text"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp" />
+        android:text=""
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+        android:textColor="?attr/colorOnSurface" />
+
 </LinearLayout>

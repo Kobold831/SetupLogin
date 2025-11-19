@@ -4,32 +4,37 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import androidx.annotation.NonNull;
+
 import jp.co.benesse.touch.setuplogin.data.task.FileDownloadTask;
 
 public class ProgressHandler extends Handler {
-
     public FileDownloadTask fileDownloadTask;
+    private boolean isStopped = false;
 
     public ProgressHandler(Looper looper) {
         super(looper);
     }
 
+    public void stop() {
+        isStopped = true;
+        removeCallbacksAndMessages(null);
+    }
+
     @Override
-    public void handleMessage(Message msg) {
+    public void handleMessage(@NonNull Message msg) {
         super.handleMessage(msg);
-
-        if (fileDownloadTask.getLoadedBytePercent() >= 100) {
-            fileDownloadTask.onProgressUpdate(100);
+        if (isStopped || fileDownloadTask == null) {
             return;
         }
-
-        if (fileDownloadTask.isFinish()) {
+        int percent = fileDownloadTask.getLoadedBytePercent();
+        boolean isFinish = fileDownloadTask.isFinish();
+        if (percent >= 100 || isFinish) {
             fileDownloadTask.onProgressUpdate(100);
+            stop();
             return;
         }
-
-        fileDownloadTask.onProgressUpdate(fileDownloadTask.getLoadedBytePercent());
-
+        fileDownloadTask.onProgressUpdate(percent);
         sendEmptyMessageDelayed(0, 100);
     }
 }

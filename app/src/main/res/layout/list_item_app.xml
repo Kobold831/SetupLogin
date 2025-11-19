@@ -2,18 +2,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
+    android:orientation="vertical"
     android:background="?attr/selectableItemBackground"
-    android:focusableInTouchMode="false">
+    android:focusable="true"
+    android:clickable="true">
 
     <TextView
-        android:id="@+id/v_app_list_text"
-        android:layout_width="wrap_content"
+        android:id="@+id/item_text"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:paddingHorizontal="16dp"
         android:paddingVertical="16dp"
+        android:text="App Name"
         android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         android:textColor="?attr/colorOnSurface" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorOutlineVariant"
+        android:alpha="0.2"/>
 
 </LinearLayout>

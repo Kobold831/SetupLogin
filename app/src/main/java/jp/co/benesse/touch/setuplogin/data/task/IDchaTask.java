@@ -8,19 +8,21 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import androidx.annotation.NonNull;
 
 import jp.co.benesse.dcha.dchaservice.IDchaService;
 import jp.co.benesse.touch.setuplogin.util.Constants;
 
 public class IDchaTask {
 
+    public interface Listener {
+        void onSuccess(IDchaService iDchaService, ServiceConnection connection);
+        void onFailure();
+    }
+
     public void execute(Context context, Listener listener) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(() -> {
-            Handler handler = new Handler(Looper.getMainLooper());
-            new Thread(() -> handler.post(() -> doInBackground(context, listener))).start();
+        new Handler(Looper.getMainLooper()).post(() -> {
+            doInBackground(context, listener);
         });
     }
 
@@ -30,22 +32,19 @@ public class IDchaTask {
         }
     }
 
-    public interface Listener {
-        void onSuccess(IDchaService iDchaService);
-        void onFailure();
-    }
-
-    public boolean tryBindDchaService(Context context, Listener listener) {
-        return context.bindService(new Intent(Constants.DCHA_SERVICE).setPackage(Constants.DCHA_PACKAGE), new ServiceConnection() {
+    public boolean tryBindDchaService(@NonNull Context context, Listener listener) {
+        Intent intent = new Intent(Constants.DCHA_SERVICE).setPackage(Constants.DCHA_PACKAGE);
+        ServiceConnection connection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                 IDchaService iDchaService = IDchaService.Stub.asInterface(iBinder);
-                listener.onSuccess(iDchaService);
+                listener.onSuccess(iDchaService, this);
             }
-
             @Override
             public void onServiceDisconnected(ComponentName componentName) {
             }
-        }, Context.BIND_AUTO_CREATE);
+        };
+
+        return context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
     }
 }

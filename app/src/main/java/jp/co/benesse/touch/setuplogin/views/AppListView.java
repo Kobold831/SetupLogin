@@ -1,11 +1,12 @@
 package jp.co.benesse.touch.setuplogin.views;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
@@ -21,40 +22,47 @@ public class AppListView {
         public boolean appOpen;
     }
 
-    public static class AppListAdapter extends ArrayAdapter<AppListView.AppData> {
+    public interface OnItemClickListener {
+        void onItemClick(AppData data);
+    }
 
-        private final LayoutInflater mInflater;
+    public static class AppListAdapter extends RecyclerView.Adapter<ViewHolder> {
 
-        public AppListAdapter(Context context, List<AppListView.AppData> dataList) {
-            super(context, R.layout.view_app_list_item);
-            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            addAll(dataList);
+        private final List<AppData> dataList;
+        private final OnItemClickListener listener;
+
+        public AppListAdapter(List<AppData> dataList, OnItemClickListener listener) {
+            this.dataList = dataList;
+            this.listener = listener;
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.list_item_app, parent, false);
+            return new ViewHolder(view);
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            AppData data = dataList.get(position);
+            holder.textView.setText(data.name);
+            holder.itemView.setOnClickListener(v -> listener.onItemClick(data));
+        }
 
-            AppListView.ViewHolder holder = new AppListView.ViewHolder();
-
-            if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.view_app_list_item, parent, false);
-                holder.textView = convertView.findViewById(R.id.v_app_list_text);
-                convertView.setTag(holder);
-            } else {
-                holder = (AppListView.ViewHolder) convertView.getTag();
-            }
-
-            final AppListView.AppData data = getItem(position);
-
-            if (data != null) {
-                holder.textView.setText(data.name);
-            }
-
-            return convertView;
+        @Override
+        public int getItemCount() {
+            return dataList.size();
         }
     }
 
-    public static class ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textView;
+
+        public ViewHolder(View view) {
+            super(view);
+            textView = view.findViewById(R.id.item_text);
+        }
     }
 }
