@@ -13,6 +13,8 @@ public class Constants {
     public static final int REQUEST_DOWNLOAD_CHECK_FILE = 0;
     public static final int REQUEST_DOWNLOAD_APK = 1;
 
+    public static final int TIMEOUT_DOWNLOAD_CHECK_FILE = 3000;
+
     public static final String FILE_CHECK_JSON = "AppList.json";
     public static final String FILE_APK = "base.apk";
     public static final String TMP_EXT = ".tmp";

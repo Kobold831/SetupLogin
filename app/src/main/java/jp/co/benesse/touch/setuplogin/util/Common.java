@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -39,18 +40,22 @@ public class Common {
         ArrayList<AppListView.AppData> result = new ArrayList<>();
 
         for (int i = 0; i < appList.length(); i++) {
-            JSONObject item = appList.getJSONObject(i);
-            JSONArray targets = item.getJSONArray(Constants.JSON_TARGET_MODEL);
-            for (int s = 0; s < targets.length(); s++) {
-                if (Objects.equals(targets.getString(s), model) || targets.getString(s).isEmpty()) {
-                    AppListView.AppData data = new AppListView.AppData();
-                    data.packageName = item.getString(Constants.JSON_PACKAGE_NAME);
-                    data.name = item.getString(Constants.JSON_NAME);
-                    data.description = item.getString(Constants.JSON_DESCRIPTION);
-                    data.url = item.getString(Constants.JSON_URL);
-                    data.appOpen = item.getBoolean(Constants.JSON_APP_OPEN);
-                    result.add(data);
+            try {
+                JSONObject item = appList.getJSONObject(i);
+                JSONArray targets = item.getJSONArray(Constants.JSON_TARGET_MODEL);
+                for (int s = 0; s < targets.length(); s++) {
+                    if (Objects.equals(targets.getString(s), model) || targets.getString(s).isEmpty()) {
+                        AppListView.AppData data = new AppListView.AppData();
+                        data.packageName = item.getString(Constants.JSON_PACKAGE_NAME);
+                        data.name = item.getString(Constants.JSON_NAME);
+                        data.description = item.getString(Constants.JSON_DESCRIPTION);
+                        data.url = item.getString(Constants.JSON_URL);
+                        data.appOpen = item.getBoolean(Constants.JSON_APP_OPEN);
+                        result.add(data);
+                        break;
+                    }
                 }
+            } catch (JSONException ignored) {
             }
         }
         return result;

@@ -1,11 +1,7 @@
 package jp.co.benesse.touch.setuplogin.data.task;
 
-import android.net.http.Headers;
 import android.os.Handler;
 import android.os.Looper;
-
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -23,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -31,64 +28,96 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import jp.co.benesse.touch.setuplogin.data.event.DownloadEventListener;
-import jp.co.benesse.touch.setuplogin.data.event.DownloadEventListenerList;
+import jp.co.benesse.touch.setuplogin.data.net.Ipv4Proxy;
 import jp.co.benesse.touch.setuplogin.util.Constants;
 
 public class FileDownloadTask {
+
     private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(2);
     private static final int BUFFER_SIZE = 8192;
     private static final int CONNECT_TIMEOUT = 15000;
     private static final int READ_TIMEOUT = 30000;
+    private static final String HEADER_ETAG = "ETag";
 
     private static final Map<String, String> ETAG_MAP = new ConcurrentHashMap<>();
+    private static final AtomicInteger TMP_SEQ = new AtomicInteger();
 
     private static volatile boolean sslInitialized = false;
 
-    private DownloadEventListenerList downloadEventListenerList;
+    private DownloadEventListener listener;
     private volatile int totalByte = 0;
     private volatile int currentByte = 0;
     private volatile boolean finished = false;
+    private volatile boolean cancelled = false;
+    private volatile HttpURLConnection connection;
 
     public void execute(DownloadEventListener downloadEventListener, String downloadUrl, File outputFile, int reqCode) {
         onPreExecute(downloadEventListener);
         Handler handler = new Handler(Looper.getMainLooper());
         EXECUTOR.execute(() -> {
-            Boolean result = doInBackground(downloadUrl, outputFile, false);
-            handler.post(() -> onPostExecute(result, reqCode));
+            Boolean outcome;
+            try {
+                outcome = doInBackground(downloadUrl, outputFile, false);
+            } catch (Throwable t) {
+                outcome = null;
+            }
+            final Boolean result = outcome;
+            if (!cancelled) {
+                handler.post(() -> onPostExecute(result, reqCode));
+            }
         });
     }
 
+    public void cancel() {
+        cancelled = true;
+        HttpURLConnection current = connection;
+        if (current != null) {
+            current.disconnect();
+        }
+    }
+
+    public static void clearCache(String downloadUrl) {
+        ETAG_MAP.remove(downloadUrl);
+    }
+
     void onPreExecute(DownloadEventListener downloadEventListener) {
-        downloadEventListenerList = new DownloadEventListenerList();
-        downloadEventListenerList.addEventListener(downloadEventListener);
+        listener = downloadEventListener;
         totalByte = 0;
         currentByte = 0;
         finished = false;
+        cancelled = false;
+        connection = null;
     }
 
     void onPostExecute(Boolean result, int reqCode) {
+        if (cancelled || listener == null) {
+            return;
+        }
         finished = true;
         totalByte = -1;
         if (result == null) {
-            downloadEventListenerList.downloadErrorNotify(reqCode);
+            listener.onDownloadError(reqCode);
         } else if (result) {
-            downloadEventListenerList.downloadCompleteNotify(reqCode);
+            listener.onDownloadComplete(reqCode);
         } else {
-            downloadEventListenerList.connectionErrorNotify(reqCode);
+            listener.onConnectionError(reqCode);
         }
     }
 
     protected Boolean doInBackground(String downloadUrl, File outputFile, boolean withoutCache) {
         HttpURLConnection httpURLConnection = null;
-        File tempFile = new File(outputFile.getPath() + Constants.TMP_EXT);
+        removeStaleTempFiles(outputFile);
+        File tempFile = new File(outputFile.getPath() + "." + TMP_SEQ.incrementAndGet() + Constants.TMP_EXT);
 
         try {
             initSslIfNeeded();
 
-            httpURLConnection = (HttpURLConnection) new URL(downloadUrl).openConnection();
+            httpURLConnection = (HttpURLConnection) new URL(downloadUrl).openConnection(Ipv4Proxy.get());
+            connection = httpURLConnection;
             httpURLConnection.setReadTimeout(READ_TIMEOUT);
             httpURLConnection.setConnectTimeout(CONNECT_TIMEOUT);
-            httpURLConnection.setRequestMethod(HttpGet.METHOD_NAME);
+            httpURLConnection.setRequestMethod("GET");
+            httpURLConnection.setRequestProperty("Accept-Encoding", "identity");
 
             if (!withoutCache) {
                 String ETag = ETAG_MAP.get(downloadUrl);
@@ -98,9 +127,12 @@ public class FileDownloadTask {
             }
 
             int responseCode = httpURLConnection.getResponseCode();
+            if (cancelled) {
+                return null;
+            }
 
             if (responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
-                if (outputFile.exists()) {
+                if (outputFile.length() > 0) {
                     return true;
                 }
                 ETAG_MAP.remove(downloadUrl);
@@ -111,7 +143,7 @@ public class FileDownloadTask {
                 return false;
             }
 
-            String ETag = httpURLConnection.getHeaderField(Headers.ETAG);
+            String ETag = httpURLConnection.getHeaderField(HEADER_ETAG);
             totalByte = httpURLConnection.getContentLength();
 
             try (InputStream bufferedInputStream = new BufferedInputStream(httpURLConnection.getInputStream(), BUFFER_SIZE);
@@ -119,10 +151,17 @@ public class FileDownloadTask {
                 byte[] buffer = new byte[BUFFER_SIZE];
                 int len;
                 while ((len = bufferedInputStream.read(buffer)) != -1) {
+                    if (cancelled) {
+                        return null;
+                    }
                     fileOutputStream.write(buffer, 0, len);
                     currentByte += len;
                 }
                 fileOutputStream.flush();
+            }
+
+            if (totalByte > 0 && currentByte < totalByte) {
+                return null;
             }
 
             if (outputFile.exists() && !outputFile.delete()) {
@@ -143,12 +182,24 @@ public class FileDownloadTask {
         } catch (IOException ignored) {
             return null;
         } finally {
+            connection = null;
             if (httpURLConnection != null) {
                 httpURLConnection.disconnect();
             }
             if (tempFile.exists()) {
                 tempFile.delete();
             }
+        }
+    }
+
+    private static void removeStaleTempFiles(File outputFile) {
+        File[] files = outputFile.getParentFile().listFiles((dir, name) ->
+                name.startsWith(outputFile.getName() + ".") && name.endsWith(Constants.TMP_EXT));
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
+            file.delete();
         }
     }
 
@@ -164,7 +215,7 @@ public class FileDownloadTask {
                     public void checkServerTrusted(X509Certificate[] certs, String authType) {}
                 }
         };
-        SSLContext sc = SSLContext.getInstance(SSLSocketFactory.TLS);
+        SSLContext sc = SSLContext.getInstance("TLS");
         sc.init(null, trustAllCerts, new java.security.SecureRandom());
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         HostnameVerifier hostnameVerifier = (hostname, session) -> true;
@@ -179,18 +230,9 @@ public class FileDownloadTask {
         return (int) Math.min(99, percent);
     }
 
-    public int getLoadedCurrentByte() {
-        return currentByte / (1024 * 1024);
-    }
-
-    public int getLoadedTotalByte() {
-        if (totalByte <= 0) return 0;
-        return totalByte / (1024 * 1024);
-    }
-
     public void onProgressUpdate(int progress) {
-        if (downloadEventListenerList != null) {
-            downloadEventListenerList.progressUpdate(progress, getLoadedCurrentByte(), getLoadedTotalByte());
+        if (listener != null) {
+            listener.onProgressUpdate(progress, currentByte, totalByte);
         }
     }
 

@@ -23,6 +23,8 @@
     <string name="dialog_error_download">ダウンロードに失敗しました。</string>
     <string name="dialog_error_check_dcha">DchaService が動作していません。\n【OK】を押すと、メイン画面に戻ります。</string>
     <string name="dialog_error_check_device">この端末はサポートされていません。\nこのアプリは使用できません。</string>
+    <string name="dialog_error_timeout">通信がタイムアウトしました。\n再度お試しください。</string>
+    <string name="dialog_error_json">アプリ一覧の読み込みに失敗しました。\n再度お試しください。</string>
 
     <!-- 進行バー -->
     <string name="progress_state_connecting">サーバーと通信しています。</string>
@@ -30,7 +32,8 @@
     <string name="progress_state_installing">インストールしています。</string>
     <string name="progress_state_please_wait">%1$s\n画面を切り替えないでください。</string>
     <string name="progress_percent">%1$d%%</string>
-    <string name="progress_byte">%1$d MB / %2$d MB</string>
+    <string name="progress_byte">%1$s / %2$s</string>
+    <string name="progress_waiting">ダウンロード中…</string>
 
     <!-- メニュー -->
     <string name="menu_open_settings">設定アプリを開く</string>

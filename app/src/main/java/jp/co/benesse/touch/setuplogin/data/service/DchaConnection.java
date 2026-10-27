@@ -28,17 +28,25 @@ public class DchaConnection implements ServiceConnection {
             consume(onConnected);
             return;
         }
-        if (!bound) {
+        if (bound) {
+            return;
+        }
+        try {
             bound = context.bindService(new Intent(Constants.DCHA_SERVICE).setPackage(Constants.DCHA_PACKAGE), this, Context.BIND_AUTO_CREATE);
-            if (!bound) {
-                consume(onBindFailed);
-            }
+        } catch (RuntimeException e) {
+            bound = false;
+        }
+        if (!bound) {
+            consume(onBindFailed);
         }
     }
 
     public void disconnect() {
         if (bound) {
-            context.unbindService(this);
+            try {
+                context.unbindService(this);
+            } catch (IllegalArgumentException ignored) {
+            }
             bound = false;
         }
         mDchaService = null;
@@ -76,7 +84,6 @@ public class DchaConnection implements ServiceConnection {
     @Override
     public void onServiceDisconnected(ComponentName name) {
         mDchaService = null;
-        bound = false;
     }
 
     private void consume(Runnable runnable) {
