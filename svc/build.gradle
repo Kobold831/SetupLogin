@@ -1,0 +1,23 @@
+plugins {
+    alias libs.plugins.agp.lib
+}
+
+android {
+    namespace = 'jp.co.benesse.dcha.dchaservice'
+    //noinspection GradleDependency
+    compileSdk = 36
+
+    defaultConfig {
+        minSdk = 22
+    }
+
+    buildFeatures {
+        aidl = true
+        buildConfig = false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
+}

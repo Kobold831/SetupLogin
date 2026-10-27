@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="setup_surface">#FEF7FF</color>
+    <color name="setup_on_surface_main">@android:color/holo_red_light</color>
+    <color name="setup_on_surface">@android:color/black</color>
+    <color name="setup_on_surface_variant">#49454F</color>
+    <color name="setup_outline">#79747E</color>
+</resources>

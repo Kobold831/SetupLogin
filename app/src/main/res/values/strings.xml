@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- メイン -->
+    <string name="app_name">SetupLogin</string>
+
     <!-- ダイアログボタン -->
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">キャンセル</string>
@@ -8,18 +11,31 @@
     <string name="dialog_title_error">エラーの発生</string>
 
     <!-- ダイアログメッセージ -->
-    <string name="dialog_failure_silent_install">サイレントインストールに失敗しました。</string>
-    <string name="dialog_success_silent_install">サイレントインストールに成功しました。</string>
+    <string name="dialog_success">成功</string>
+    <string name="dialog_failure">失敗</string>
+    <string name="dialog_install">インストールに【%1$s】しました。</string>
+    <string name="dialog_confirm">続行する場合は【OK】を押下してください。</string>
 
     <!-- ダイアログエラー -->
     <string name="dialog_error">エラーが発生しました。</string>
-    <string name="dialog_error_connection">"データ取得に失敗しました。ネットワークを確認してください。"</string>
-    <string name="dialog_error_download">"ダウンロードに失敗しました。ネットワークを確認してください。"</string>
-    <string name="dialog_error_check_dcha">DchaService が動作していません。 OK を押すと、メイン画面に戻ります。</string>
-    <string name="dialog_error_check_device">この端末はサポートされていません。このアプリは使用できません。</string>
+    <string name="dialog_error_check_internet">%1$s\nインターネット接続を確認してください。</string>
+    <string name="dialog_error_connection">データ取得に失敗しました。</string>
+    <string name="dialog_error_download">ダウンロードに失敗しました。</string>
+    <string name="dialog_error_check_dcha">DchaService が動作していません。\n【OK】を押すと、メイン画面に戻ります。</string>
+    <string name="dialog_error_check_device">この端末はサポートされていません。\nこのアプリは使用できません。</string>
 
     <!-- 進行バー -->
-    <string name="progress_state_connecting">サーバーと通信しています。画面を切り替えないでください。</string>
-    <string name="progress_state_download_file">ファイルをサーバーからダウンロードしています。画面を切り替えないでください。</string>
-    <string name="progress_state_installing">インストールしています。画面を切り替えないでください。</string>
+    <string name="progress_state_connecting">サーバーと通信しています。</string>
+    <string name="progress_state_download_file">ファイルをサーバーからダウンロードしています。</string>
+    <string name="progress_state_installing">インストールしています。</string>
+    <string name="progress_state_please_wait">%1$s\n画面を切り替えないでください。</string>
+    <string name="progress_percent">%1$d%%</string>
+    <string name="progress_byte">%1$d MB / %2$d MB</string>
+
+    <!-- メニュー -->
+    <string name="menu_open_settings">設定アプリを開く</string>
+
+    <!-- メイン画面 -->
+    <string name="main_select_app"><b>↓アプリを選択してインストール↓</b></string>
+    <string name="version_prefix">v</string>
 </resources>

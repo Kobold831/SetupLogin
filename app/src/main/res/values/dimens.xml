@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="settings_icon">32dp</dimen>
+    <dimen name="portrait_padding">12dp</dimen>
+    <dimen name="horizonal_padding">16dp</dimen>
+    <dimen name="item_border">4dp</dimen>
+</resources>

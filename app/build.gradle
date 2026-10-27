@@ -1,30 +1,40 @@
 plugins {
-    id 'com.android.application'
+    alias libs.plugins.agp.app
 }
 
 android {
     namespace = 'jp.co.benesse.touch.setuplogin'
+    //noinspection GradleDependency
     compileSdk = 36
+    useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         minSdk = 22
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 22
-        versionCode = 11
-        versionName = "1.9.0"
+        versionCode = 12
+        versionName = "1.9.1"
         proguardFiles += 'proguard-rules.pro'
         multiDexEnabled = false
     }
 
-    android {
-        buildFeatures {
-            buildConfig = true
+    signingConfigs {
+        configureEach {
+            enableV1Signing = true
+            enableV2Signing = false
+            enableV3Signing = false
+        }
+        android {
+            storeFile file('android.jks')
+            storePassword 'android'
+            keyAlias 'android'
+            keyPassword 'android'
         }
     }
 
     buildTypes {
         configureEach {
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.android
         }
         release {
             minifyEnabled = true
@@ -32,22 +42,25 @@ android {
         }
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_21
         targetCompatibility JavaVersion.VERSION_21
     }
 
-    lintOptions {
+    lint {
         abortOnError = false
-        ignore 'HardcodedText'
+        checkReleaseBuilds = false
     }
 }
 
 dependencies {
-    implementation 'me.s1204:DchaService:1.0.0'
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation project(":svc")
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+    //options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
 }

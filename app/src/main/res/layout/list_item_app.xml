@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="?attr/selectableItemBackground"
-    android:focusable="true"
-    android:clickable="true">
+    android:background="?android:attr/selectableItemBackground"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/item_text"
@@ -13,14 +12,14 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="16dp"
         android:paddingVertical="16dp"
-        android:text="App Name"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        android:textColor="?attr/colorOnSurface" />
+        android:textAppearance="@style/TextAppearance.SetupLogin.BodyLarge"
+        android:textColor="@color/setup_on_surface"
+        tools:text="-- アプリ名 --" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/colorOutlineVariant"
-        android:alpha="0.2"/>
+        android:alpha="0.2"
+        android:background="@color/setup_outline" />
 
 </LinearLayout>

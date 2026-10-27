@@ -3,9 +3,6 @@ pluginManagement {
         google()
         mavenCentral()
     }
-    plugins {
-        id 'com.android.application' version '9.4.1' apply false
-    }
 }
 
 dependencyResolutionManagement {
@@ -16,4 +13,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "SetupLogin"
-include 'app'
+include 'app', 'svc'

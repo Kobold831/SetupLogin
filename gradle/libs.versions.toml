@@ -1,0 +1,9 @@
+[versions]
+#noinspection AndroidGradlePluginVersion
+agp = "8.13.2"
+
+[plugins]
+agp-app = { id = "com.android.application", version.ref = "agp" }
+agp-lib = { id = "com.android.library", version.ref = "agp" }
+
+[libraries]

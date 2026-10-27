@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:gravity="center"
-    android:padding="24dp"
-    android:background="?attr/colorSurface">
+    android:padding="24dp">
 
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:indeterminate="true"
-        style="@style/Widget.Material3.CircularProgressIndicator" />
+        style="?android:attr/progressBarStyle" />
 
     <TextView
         android:id="@+id/view_progress_spinner_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-        android:textColor="?attr/colorOnSurface" />
+        android:textAppearance="@style/TextAppearance.SetupLogin.BodyLarge"
+        android:textColor="@color/setup_on_surface"
+        tools:text="インストールしています。\n画面を切り替えないでください。"/>
 
 </LinearLayout>
