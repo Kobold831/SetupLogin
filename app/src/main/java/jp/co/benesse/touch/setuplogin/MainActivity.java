@@ -168,7 +168,7 @@ public class MainActivity extends Activity implements DownloadEventListener, Vie
             listRetried = false;
             errorCount = 0;
             prefetchHosts(list);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             if (!listRetried) {
                 listRetried = true;
                 FileDownloadTask.clearCache(Constants.URL_CHECK);

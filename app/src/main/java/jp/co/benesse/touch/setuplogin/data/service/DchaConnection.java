@@ -33,7 +33,7 @@ public class DchaConnection implements ServiceConnection {
         }
         try {
             bound = context.bindService(new Intent(Constants.DCHA_SERVICE).setPackage(Constants.DCHA_PACKAGE), this, Context.BIND_AUTO_CREATE);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException ignored) {
             bound = false;
         }
         if (!bound) {

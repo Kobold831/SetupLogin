@@ -58,7 +58,7 @@ public class FileDownloadTask {
             Boolean outcome;
             try {
                 outcome = doInBackground(downloadUrl, outputFile, false);
-            } catch (Throwable t) {
+            } catch (Throwable ignored) {
                 outcome = null;
             }
             final Boolean result = outcome;

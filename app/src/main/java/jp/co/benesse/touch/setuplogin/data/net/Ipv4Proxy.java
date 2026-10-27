@@ -57,7 +57,7 @@ public final class Ipv4Proxy {
                 Thread handler = new Thread(() -> handle(client), "ipv4-proxy-conn");
                 handler.setDaemon(true);
                 handler.start();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
                 return;
             }
         }
