@@ -1,7 +1,6 @@
 package jp.co.benesse.touch.setuplogin.util;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
@@ -13,7 +12,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
 import jp.co.benesse.touch.setuplogin.R;
@@ -23,11 +21,7 @@ public class Common {
 
     public static String getDchaCheckError(Context context) {
         try {
-            PackageInfo pInfo = context.getPackageManager().getPackageInfo(Constants.DCHA_PACKAGE, 0);
-            //noinspection deprecation
-            if (Arrays.asList(Constants.CT2_MODELS).contains(Build.PRODUCT) && pInfo.versionCode < 5) {
-                return context.getString(R.string.dialog_error_check_device);
-            }
+            context.getPackageManager().getPackageInfo(Constants.DCHA_PACKAGE, 0);
         } catch (PackageManager.NameNotFoundException ignored) {
             return context.getString(R.string.dialog_error_check_dcha);
         }

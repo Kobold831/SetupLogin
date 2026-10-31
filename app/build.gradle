@@ -41,6 +41,10 @@ android {
         }
     }
 
+    androidResources {
+        noCompress.add("der")
+    }
+
     buildFeatures {
         buildConfig = true
     }
