@@ -22,26 +22,26 @@
   [**test_environment_info.xml**](test_environment_info.xml?raw=true)
 1. \[**保存 (S)**\]を押します。
 1. ファイルを開き、空ファイルでない事を確認してください。  
-  [![](images/step-1.png)](#)
+  [![](images/step-1.webp)](#)
 1. PC に USBケーブルを接続 または microSDカード を挿入し、`test_environment_info.xml` を 内部ストレージ または SDカードの**ルート(最上位)ディレクトリ**にコピーします。  
-  [![](images/step-2.png)](#)
+  [![](images/step-2.webp)](#)
 1. **microSDカード を チャレンジパッド に挿入します。**  
 1. ホーム画面の \[**まず　最初に　押そう！**\] を押します。  
-  [![](images/step-3.png)](#)
+  [![](images/step-3.webp)](#)
 1. \[**わかった**\] を押します。  
-  [![](images/step-4.png)](#)  
+  [![](images/step-4.webp)](#)  
   この際、**バッテリー残量が 50% 以上かつ充電中**でないと先に進めません。  
 1. **この画面で右下に文字が表示されていることを確認します。**  
   確認できたら \[**設定を始める**\] を押します。
-  [![](images/step-5.png)](#)
+  [![](images/step-5.webp)](#)
 1. Wi-Fi に接続した後、\[**次へ**\] を押します。  
-  [![](images/step-6.png)](#)
+  [![](images/step-6.webp)](#)
 1. ｢**ダウンロード速度**｣が出たら、\[**次へ**\] を押します。
-  [![](images/step-7.png)](#)
+  [![](images/step-7.webp)](#)
 1. 指示通り端末に触れずに待機します。  
-  [![](images/step-8.png)](#)
+  [![](images/step-8.webp)](#)
 1. ログイン画面ではなく、アプリ一覧が表示されることを確認します。
-  [![](images/step-9.png)](#)
+  [![](images/step-9.webp)](#)
 1. アプリを選択して`OK`を押します。  
   この際、状況に応じて、次のいずれかのアプリを選択してください：
     - **Easy BLU**
